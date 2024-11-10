@@ -1,27 +1,31 @@
 version: '3'
 
 services:
+  # Service MySQL
   mysqldb:
     image: mysql:5.7
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=root          # Mot de passe root
-      - MYSQL_DATABASE=devops             # Base de données à créer
-      - MYSQL_USER=devops_user            # Utilisateur de la base
-      - MYSQL_PASSWORD=devops_password    # Mot de passe pour l'utilisateur
+      - MYSQL_ROOT_PASSWORD=root            # Mot de passe pour l'utilisateur root
+      - MYSQL_DATABASE=devops               # Nom de la base de données à créer
+      - MYSQL_USER=devops_user              # Utilisateur pour accéder à la base
+      - MYSQL_PASSWORD=devops_password      # Mot de passe de l'utilisateur
     ports:
-      - 3306:3306                         # Mappage du port MySQL
+      - 3306:3306                           # Expose le port 3306 pour l'accès MySQL à l'extérieur (optionnel)
     volumes:
-      - db:/var/lib/mysql                 # Volume persistant pour MySQL
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Monter le fichier SQL d'init
+      - db:/var/lib/mysql                   # Volume persistant pour la base de données
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Fichier SQL d'initialisation
+    networks:
+      - devops-network                       # Connecter mysqldb au réseau personnalisé
 
+  # Service Backend (Spring Boot)
   projet-back:
     depends_on:
-      - mysqldb
-    build: molkadh/projet-front:1.0.0       # Image backend à construire
+      - mysqldb                              # Le backend dépend de la base de données
+    image: molkadh/projet-back:1.0.0         # Utiliser l'image pré-poussée sur Docker Hub
     restart: on-failure
     ports:
-      - 8089:8089                           # Port d'exposition du backend
+      - 8089:8089                           # Expose le port 8089 pour le backend (API ou autre)
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/devops?useSSL=false&createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: devops_user
@@ -30,14 +34,25 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     stdin_open: true
     tty: true
+    networks:
+      - devops-network                       # Connecter le backend au réseau personnalisé
 
+  # Service Frontend
   projet-front:
     depends_on:
-      - mysqldb
-    image: molkadh/projet-front:1.0.0       # Image frontend à utiliser
+      - projet-back                          # Le frontend dépend du backend
+    image: molkadh/projet-front:1.0.0        # Utiliser l'image du frontend
     restart: on-failure
     ports:
-      - 80:80                               # Port d'exposition du frontend
+      - 80:80                                # Expose le port 80 pour le frontend accessible par le public
+    networks:
+      - devops-network                       # Connecter le frontend au réseau personnalisé
 
+# Volumes pour la persistance des données MySQL
 volumes:
-  db:                                      # Volume Docker pour persister les données MySQL
+  db:
+
+# Réseau personnalisé pour connecter les services entre eux
+networks:
+  devops-network:
+    driver: bridge
