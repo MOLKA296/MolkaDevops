@@ -1,22 +1,6 @@
-<<<<<<< HEAD
-# Étape 1 : Utiliser une image de base avec JDK
-FROM openjdk:17
-
-# Étape 2 : Définir le répertoire de travail
-WORKDIR /app
-
-# Étape 3 : Copier le fichier .jar de votre projet dans le conteneur
-COPY target/*.jar app.jar
-
-# Étape 4 : Exposer le port sur lequel l'application écoutera
-EXPOSE 8089
-
-# Étape 5 : Commande pour exécuter l'application
-ENTRYPOINT ["java", "-jar", "app.jar"]
-=======
 # Dockerfile pour le front-end (Angular)
 
-# Étape 1 : Construction de l'application
+# Étape 1 : Construction de l'application Angular
 FROM node:14 as build
 
 # Définir le répertoire de travail pour la construction
@@ -45,4 +29,3 @@ EXPOSE 80
 
 # Lancer Nginx en mode non-détaché
 CMD ["nginx", "-g", "daemon off;"]
->>>>>>> d596b0c (Ajout du projet Angular complet)
