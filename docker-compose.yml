@@ -5,7 +5,7 @@ services:
     image: mysql:5.7
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_ROOT_PASSWORD=
       - MYSQL_DATABASE=projetdb
     ports:
       - 3306:3306
@@ -15,31 +15,27 @@ services:
   projet-back:
     depends_on:
       - mysqldb
-    build:
-      context: ./Back  
+    build: molkadh/projet-front:1.0.0
     restart: on-failure
     ports:
       - 8089:8089
     environment:
       SPRING_APPLICATION_JSON: '{
-        "spring.datasource.url"  : "jdbc:mysql://mysqldb:3306/projetdb?useSSL=false&createDatabaseIfNotExist=true",
-        "spring.datasource.username" : "root",
-        "spring.datasource.password" : "rootpassword",
-        "spring.jpa.properties.hibernate.dialect" : "org.hibernate.dialect.MySQL5InnoDBDialect",
-        "spring.jpa.hibernate.ddl-auto" : "update" }'
+        "spring.datasource.url": "jdbc:mysql://mysqldb:3306/projetdb?useSSL=false&createDatabaseIfNotExist=true",
+        "spring.datasource.username": "root",
+        "spring.datasource.password": "",
+        "spring.jpa.properties.hibernate.dialect": "org.hibernate.dialect.MySQL5InnoDBDialect",
+        "spring.jpa.hibernate.ddl-auto": "update"      }'
     stdin_open: true
     tty: true
 
   projet-front:
-    build:
-      context: ./Front  # Dossier contenant le Dockerfile du frontend
+    depends_on:
+      - mysqldb
+    image: molkadh/projet-front:1.0.0
     restart: on-failure
     ports:
-      - 80:80  
-    depends_on:
-      - projet-back  
-    stdin_open: true
-    tty: true
+      - 80:80
 
 volumes:
   db:
