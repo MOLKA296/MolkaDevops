@@ -5,22 +5,23 @@ services:
     image: mysql:5.7
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=root              # Mot de passe pour le user root
-      - MYSQL_DATABASE=devops                 # Base de données à créer
-      - MYSQL_USER=devops_user                # Utilisateur dédié pour l'accès à la base
-      - MYSQL_PASSWORD=devops_password        # Mot de passe pour le nouvel utilisateur
+      - MYSQL_ROOT_PASSWORD=root          # Mot de passe root
+      - MYSQL_DATABASE=devops             # Base de données à créer
+      - MYSQL_USER=devops_user            # Utilisateur de la base
+      - MYSQL_PASSWORD=devops_password    # Mot de passe pour l'utilisateur
     ports:
-      - 3306:3306                             # Mappage des ports
+      - 3306:3306                         # Mappage du port MySQL
     volumes:
-      - db:/var/lib/mysql                     # Volume pour persister les données
+      - db:/var/lib/mysql                 # Volume persistant pour MySQL
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Monter le fichier SQL d'init
 
   projet-back:
     depends_on:
       - mysqldb
-    build: molkadh/projet-front:1.0.0         # Image à construire pour le backend
+    build: molkadh/projet-front:1.0.0       # Image backend à construire
     restart: on-failure
     ports:
-      - 8089:8089                             # Port d'exposition pour l'application backend
+      - 8089:8089                           # Port d'exposition du backend
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/devops?useSSL=false&createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: devops_user
@@ -33,10 +34,10 @@ services:
   projet-front:
     depends_on:
       - mysqldb
-    image: molkadh/projet-front:1.0.0         # Image du frontend
+    image: molkadh/projet-front:1.0.0       # Image frontend à utiliser
     restart: on-failure
     ports:
-      - 80:80                                 # Port d'exposition pour le frontend
+      - 80:80                               # Port d'exposition du frontend
 
 volumes:
-  db:
+  db:                                      # Volume Docker pour persister les données MySQL
