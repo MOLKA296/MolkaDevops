@@ -6,26 +6,26 @@ services:
     image: mysql:5.7
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=root            # Mot de passe pour l'utilisateur root
-      - MYSQL_DATABASE=devops               # Nom de la base de données à créer
-      - MYSQL_USER=devops_user              # Utilisateur pour accéder à la base
-      - MYSQL_PASSWORD=devops_password      # Mot de passe de l'utilisateur
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=devops
+      - MYSQL_USER=devops_user
+      - MYSQL_PASSWORD=devops_password
     ports:
-      - 3306:3306                           # Expose le port 3306 pour l'accès MySQL à l'extérieur (optionnel)
+      - 3306:3306
     volumes:
-      - db:/var/lib/mysql                   # Volume persistant pour la base de données
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Fichier SQL d'initialisation
+      - db:/var/lib/mysql
+      - ./init:/docker-entrypoint-initdb.d  # Monte le répertoire contenant tous les fichiers .sql
     networks:
-      - devops-network                       # Connecter mysqldb au réseau personnalisé
+      - devops-network
 
   # Service Backend (Spring Boot)
   projet-back:
     depends_on:
-      - mysqldb                              # Le backend dépend de la base de données
-    image: molkadh/projet-back:1.0.0         # Utiliser l'image pré-poussée sur Docker Hub
+      - mysqldb
+    image: molkadh/projet-back:1.0.0
     restart: on-failure
     ports:
-      - 8089:8089                           # Expose le port 8089 pour le backend (API ou autre)
+      - 8089:8089
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/devops?useSSL=false&createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: devops_user
@@ -35,18 +35,18 @@ services:
     stdin_open: true
     tty: true
     networks:
-      - devops-network                       # Connecter le backend au réseau personnalisé
+      - devops-network
 
   # Service Frontend
   projet-front:
     depends_on:
-      - projet-back                          # Le frontend dépend du backend
-    image: molkadh/projet-front:1.0.0        # Utiliser l'image du frontend
+      - projet-back
+    image: molkadh/projet-front:1.0.0
     restart: on-failure
     ports:
-      - 80:80                                # Expose le port 80 pour le frontend accessible par le public
+      - 80:80
     networks:
-      - devops-network                       # Connecter le frontend au réseau personnalisé
+      - devops-network
 
 # Volumes pour la persistance des données MySQL
 volumes:
