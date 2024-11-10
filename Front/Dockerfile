@@ -12,7 +12,7 @@ RUN npm run build --prod
 
 FROM nginx:alpine
 
-COPY --from=build /app/dist/nom-du-projet-angular /usr/share/nginx/html
+COPY --from=build /app/dist/summer-workshop-angular /usr/share/nginx/html
 
 EXPOSE 80
 
