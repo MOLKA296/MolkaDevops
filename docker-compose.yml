@@ -1,36 +1,34 @@
 version: '3'
 
 services:
-  # Service MySQL
-  mysqldb:
-    image: mysql:5.7
-    restart: unless-stopped
+  # Service PostgreSQL
+  postgresdb:
+    image: postgres:13
+    container_name: docker-compose-postgres-db
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=devops
-      - MYSQL_USER=devops_user
-      - MYSQL_PASSWORD=devops_password
+      - POSTGRES_USER=devops_user       # Utilisateur pour PostgreSQL
+      - POSTGRES_PASSWORD=devops_password  # Mot de passe pour l'utilisateur
+      - POSTGRES_DB=devops              # Nom de la base de données à créer
     ports:
-      - 3306:3306
+      - "5432:5432"
     volumes:
-      - db:/var/lib/mysql
-      - ./init:/docker-entrypoint-initdb.d  # Monte le répertoire contenant tous les fichiers .sql
+      - postgres-data:/var/lib/postgresql/data  # Volume pour persister les données
     networks:
       - devops-network
 
   # Service Backend (Spring Boot)
   projet-back:
     depends_on:
-      - mysqldb
+      - postgresdb
     image: molkadh/projet-back:1.0.0
     restart: on-failure
     ports:
-      - 8089:8089
+      - "8089:8089"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/devops?useSSL=false&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/devops  # URL PostgreSQL
       SPRING_DATASOURCE_USERNAME: devops_user
       SPRING_DATASOURCE_PASSWORD: devops_password
-      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL5InnoDBDialect
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQL95Dialect  # Dialect PostgreSQL
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     stdin_open: true
     tty: true
@@ -44,13 +42,13 @@ services:
     image: molkadh/projet-front:1.0.0
     restart: on-failure
     ports:
-      - 80:80
+      - "80:80"
     networks:
       - devops-network
 
-# Volumes pour la persistance des données MySQL
+# Volumes pour la persistance des données PostgreSQL
 volumes:
-  db:
+  postgres-data:
 
 # Réseau personnalisé pour connecter les services entre eux
 networks:
