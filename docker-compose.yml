@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # Service MySQL (base de données)
   mysqldb:
     image: mysql:5.7
     restart: unless-stopped
@@ -13,12 +12,11 @@ services:
     volumes:
       - db:/var/lib/mysql
 
-  # Service Backend (Spring Boot)
   projet-back:
     depends_on:
       - mysqldb
     build:
-      context: ./Back  # Dossier contenant le Dockerfile du backend
+      context: ./Back  
     restart: on-failure
     ports:
       - 8089:8089
@@ -32,18 +30,16 @@ services:
     stdin_open: true
     tty: true
 
-  # Service Frontend (Angular)
   projet-front:
     build:
       context: ./Front  # Dossier contenant le Dockerfile du frontend
     restart: on-failure
     ports:
-      - 80:80  # Expose le port 80 (Nginx)
+      - 80:80  
     depends_on:
-      - projet-back  # Assurez-vous que le backend est prêt avant de démarrer le frontend
+      - projet-back  
     stdin_open: true
     tty: true
 
 volumes:
   db:
-    driver: local  # Volume pour MySQL
