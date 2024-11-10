@@ -1,7 +1,8 @@
 # Dockerfile pour le front-end (Angular)
 
 # Étape 1 : Construction de l'application Angular
-FROM node:14 as build
+# Utiliser une version plus récente de Node.js
+FROM node:16 as build  # Remplacer node:14 par node:16 ou version plus récente
 
 # Définir le répertoire de travail pour la construction
 WORKDIR /app
