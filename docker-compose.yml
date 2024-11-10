@@ -5,37 +5,38 @@ services:
     image: mysql:5.7
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=devops
+      - MYSQL_ROOT_PASSWORD=root              # Mot de passe pour le user root
+      - MYSQL_DATABASE=devops                 # Base de données à créer
+      - MYSQL_USER=devops_user                # Utilisateur dédié pour l'accès à la base
+      - MYSQL_PASSWORD=devops_password        # Mot de passe pour le nouvel utilisateur
     ports:
-      - 3306:3306
+      - 3306:3306                             # Mappage des ports
     volumes:
-      - db:/var/lib/mysql
+      - db:/var/lib/mysql                     # Volume pour persister les données
 
   projet-back:
     depends_on:
       - mysqldb
-    build: molkadh/projet-front:1.0.0
+    build: molkadh/projet-front:1.0.0         # Image à construire pour le backend
     restart: on-failure
     ports:
-      - 8089:8089
+      - 8089:8089                             # Port d'exposition pour l'application backend
     environment:
-      SPRING_APPLICATION_JSON: '{
-        "spring.datasource.url": "jdbc:mysql://mysqldb:3306/devops?useSSL=false&createDatabaseIfNotExist=true",
-        "spring.datasource.username": "root",
-        "spring.datasource.password": "root",
-        "spring.jpa.properties.hibernate.dialect": "org.hibernate.dialect.MySQL5InnoDBDialect",
-        "spring.jpa.hibernate.ddl-auto": "update"      }'
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/devops?useSSL=false&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: devops_user
+      SPRING_DATASOURCE_PASSWORD: devops_password
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL5InnoDBDialect
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     stdin_open: true
     tty: true
 
   projet-front:
     depends_on:
       - mysqldb
-    image: molkadh/projet-front:1.0.0
+    image: molkadh/projet-front:1.0.0         # Image du frontend
     restart: on-failure
     ports:
-      - 80:80
+      - 80:80                                 # Port d'exposition pour le frontend
 
 volumes:
   db:
