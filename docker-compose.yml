@@ -27,17 +27,15 @@ services:
   projet-front:
     depends_on:
       - mysqldb
-    build: molkadh/projet-front:1.0.0
+    image: molkadh/projet-front:1.0.0
     restart: on-failure
     ports:
-      - "8089:8089"  # Port front
+      - "8089:8089"
     environment:
-      SPRING_APPLICATION_JSON: '{
-        "spring.datasource.url": "jdbc:mysql://mysqldb:3306/molkadb?useSSL=false&createDatabaseIfNotExist=true",
-        "spring.datasource.username": "root",
-        "spring.datasource.password": "root",
-        "spring.jpa.hibernate.ddl-auto": "update"
-      }'
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/molkadb?useSSL=false&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
 volumes:
   db:
