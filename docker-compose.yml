@@ -10,7 +10,8 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - db:/var/lib/mysql
+    - db:/var/lib/mysql
+    - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   projet-back:
     depends_on:
