@@ -1,40 +1,43 @@
-version: '3'
+version: '3.8'
 services:
   mysqldb:
     image: mysql:5.7
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=
-      - MYSQL_DATABASE=molkadb
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: molkab
     ports:
-      - 3306:3306
+      - "3306:3306"
     volumes:
       - db:/var/lib/mysql
 
   projet-back:
     depends_on:
       - mysqldb
-    build: molkadh/projet-back:1.0.0
+    image: molkadh/projet-back:1.0.0
     restart: on-failure
     ports:
-      - 8089:8089
+      - "8082:8082"  # Si l'app back écoute sur 8082
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/molkadb?useSSL=false&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+  projet-front:
+    depends_on:
+      - mysqldb
+    build: molkadh/projet-front:1.0.0
+    restart: on-failure
+    ports:
+      - "8089:8089"  # Port front
     environment:
       SPRING_APPLICATION_JSON: '{
         "spring.datasource.url": "jdbc:mysql://mysqldb:3306/molkadb?useSSL=false&createDatabaseIfNotExist=true",
         "spring.datasource.username": "root",
         "spring.datasource.password": "root",
-        "spring.jpa.properties.hibernate.dialect": "org.hibernate.dialect.MySQL5InnoDBDialect",
-        "spring.jpa.hibernate.ddl-auto": "update"      }'
-    stdin_open: true
-    tty: true
-
-  projet-front:
-    depends_on:
-      - mysqldb
-    image: molkadh/projet-front:1.0.0
-    restart: on-failure
-    ports:
-      - 80:80
+        "spring.jpa.hibernate.ddl-auto": "update"
+      }'
 
 volumes:
   db:
