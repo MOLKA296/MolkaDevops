@@ -11,10 +11,10 @@ services:
     volumes:
       - db:/var/lib/mysql
 
-  projet-front:
+  projet-back:
     depends_on:
       - mysqldb
-    build: molkadh/projet-front:1.0.0
+    build: molkadh/projet-back:1.0.0
     restart: on-failure
     ports:
       - 8089:8089
@@ -28,10 +28,10 @@ services:
     stdin_open: true
     tty: true
 
-  projet-back:
+  projet-front:
     depends_on:
       - mysqldb
-    image: molkadh/projet-back:1.0.0
+    image: molkadh/projet-front:1.0.0
     restart: on-failure
     ports:
       - 80:80
