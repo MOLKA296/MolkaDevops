@@ -1,4 +1,4 @@
-vversion: '3'
+vversion: '3.9'
 services:
   mysql-db:
     image: mysql:latest
