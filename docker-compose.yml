@@ -6,6 +6,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: molkadb
+      MYSQL_ROOT_HOST: '%'
     ports:
       - "3306:3306"
     volumes:
