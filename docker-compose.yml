@@ -1,56 +1,40 @@
 version: '3'
-
 services:
-  # Service PostgreSQL
-  postgresdb:
-    image: postgres:13
-    container_name: docker-compose-postgres-db
+  mysqldb:
+    image: mysql:5.7
+    restart: unless-stopped
     environment:
-      - POSTGRES_USER=devops_user       # Utilisateur pour PostgreSQL
-      - POSTGRES_PASSWORD=devops_password  # Mot de passe pour l'utilisateur
-      - POSTGRES_DB=devops              # Nom de la base de données à créer
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_DATABASE=achatdb
     ports:
-      - "5432:5432"
+      - 3306:3306
     volumes:
-      - postgres-data:/var/lib/postgresql/data  # Volume pour persister les données
-    networks:
-      - devops-network
+      - db:/var/lib/mysql
 
-  # Service Backend (Spring Boot)
-  projet-back:
+  achat:
     depends_on:
-      - postgresdb
-    image: molkadh/projet-back:1.0.0
+      - mysqldb
+    build: balha008/achat:1.0.0
     restart: on-failure
     ports:
-      - "8089:8089"
+      - 8089:8089
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/devops  # URL PostgreSQL
-      SPRING_DATASOURCE_USERNAME: devops_user
-      SPRING_DATASOURCE_PASSWORD: devops_password
-      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQL95Dialect  # Dialect PostgreSQL
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_APPLICATION_JSON: '{
+        "spring.datasource.url": "jdbc:mysql://mysqldb:3306/achatdb?useSSL=false&createDatabaseIfNotExist=true",
+        "spring.datasource.username": "root",
+        "spring.datasource.password": "",
+        "spring.jpa.properties.hibernate.dialect": "org.hibernate.dialect.MySQL5InnoDBDialect",
+        "spring.jpa.hibernate.ddl-auto": "update"      }'
     stdin_open: true
     tty: true
-    networks:
-      - devops-network
 
-  # Service Frontend
-  projet-front:
+  achat_front:
     depends_on:
-      - projet-back
-    image: molkadh/projet-front:1.0.0
+      - mysqldb
+    image: balha008/achat_front:1.0.0
     restart: on-failure
     ports:
-      - "80:80"
-    networks:
-      - devops-network
+      - 80:80
 
-# Volumes pour la persistance des données PostgreSQL
 volumes:
-  postgres-data:
-
-# Réseau personnalisé pour connecter les services entre eux
-networks:
-  devops-network:
-    driver: bridge
+  db:
