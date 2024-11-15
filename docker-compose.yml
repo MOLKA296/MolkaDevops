@@ -1,17 +1,18 @@
-version: '3.8'
+vversion: '3'
 services:
-  mysqldb:
-    image: mysql:8.0
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: molkadb
-      MYSQL_ROOT_HOST: '%'
+  mysql-db:
+    image: mysql:latest
+    container_name: docker-compose-mysql-db
     ports:
-      - "3306:3306"
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=Back
+    networks:
+      - my-network
     volumes:
-    - db:/var/lib/mysql
-    - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql-data:/var/lib/mysql 
+    
 
   projet-back:
     depends_on:
@@ -21,10 +22,10 @@ services:
     ports:
       - "8082:8082"  # Si l'app back écoute sur 8082
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/molkadb?useSSL=false&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/Back?useSSL=false&createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+     
 
   projet-front:
     depends_on:
@@ -34,7 +35,7 @@ services:
     ports:
       - "8089:8089"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/molkadb?useSSL=false&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/Back?useSSL=false&createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
