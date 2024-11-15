@@ -20,7 +20,7 @@ services:
     ports:
       - "8082:8082"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/molkadb?useSSL=false&createDatabaseIfNotExist=true  # URL mise à jour pour "molkadb"
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/molkadb?spring.datasource.url=jdbc:mysql://mysql-db:3306/molkadb?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true  # URL mise à jour pour "molkadb"
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
     networks:
